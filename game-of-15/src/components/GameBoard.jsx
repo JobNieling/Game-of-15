@@ -31,7 +31,10 @@ export default function GameBoard({ playerChoice }) {
     ];
 
     for (const line of lines) {
-      if (line.every((cell) => cell === currentPlayer) && line[0] !== null) {
+      const nonNullCells = line.filter((cell) => cell !== null);
+      const sum = nonNullCells.reduce((acc, cell) => acc + cell, 0);
+
+      if (nonNullCells.length === 3 && sum === 15) {
         return currentPlayer;
       }
     }
