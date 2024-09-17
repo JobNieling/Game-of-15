@@ -1,0 +1,28 @@
+/* GameGrid.css */
+.GameGrid {
+  border-collapse: collapse;
+  border: 2px solid black;
+  margin-bottom: 20px;
+}
+
+.GameGrid td {
+  width: 15vw;
+  height: 10vh;
+  text-align: center;
+  border: 1px solid black;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.GameGrid td:hover {
+  background-color: #f0f0f0;
+}
+
+.GameGrid td.selected {
+  background-color: lightblue;
+}
+
+.cell-number {
+  font-size: 14px;
+}

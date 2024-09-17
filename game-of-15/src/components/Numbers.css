@@ -1,0 +1,23 @@
+/* components/Numbers.css */
+.Numbers {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.Numbers ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.Numbers li {
+  margin: 0 5px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.Numbers li:hover {
+  background-color: lightgray;
+}
