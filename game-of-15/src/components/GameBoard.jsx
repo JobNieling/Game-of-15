@@ -5,7 +5,11 @@ import GameStatus from "./GameStatus";
 import Scoreboard from "./Scoreboard";
 
 export default function GameBoard({ playerChoice }) {
-  const [grid, setGrid] = useState(Array(3).fill(Array(3).fill(null)));
+  const [grid, setGrid] = useState(
+    Array(3)
+      .fill(null)
+      .map(() => Array(3).fill(null))
+  );
   const [selectedCell, setSelectedCell] = useState({ row: null, col: null });
   const [availableNumbers, setAvailableNumbers] = useState([
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -18,9 +22,7 @@ export default function GameBoard({ playerChoice }) {
   const checkForWinner = (newGrid) => {
     const lines = [
       // Rows
-      [newGrid[0][0], newGrid[0][1], newGrid[0][2]],
-      [newGrid[1][0], newGrid[1][1], newGrid[1][2]],
-      [newGrid[2][0], newGrid[2][1], newGrid[2][2]],
+      ...newGrid,
       // Columns
       [newGrid[0][0], newGrid[1][0], newGrid[2][0]],
       [newGrid[0][1], newGrid[1][1], newGrid[2][1]],
@@ -39,32 +41,17 @@ export default function GameBoard({ playerChoice }) {
       }
     }
 
-    // Check for tie
-    if (newGrid.flat().every((cell) => cell !== null)) {
-      return "tie";
-    }
-
-    return null;
+    return newGrid.flat().every((cell) => cell !== null) ? "tie" : null;
   };
 
-  const handleCellClick = (row, col) => {
-    if (winner || grid[row][col] !== null) return;
-    if (currentPlayer === "even" && !availableNumbers.includes(grid[row][col]))
-      return;
-    if (currentPlayer === "odd" && !availableNumbers.includes(grid[row][col]))
-      return;
-
-    const newGrid = grid.map((r) => r.slice());
-    newGrid[row][col] = availableNumbers[0];
+  const updateGridAndCheckWinner = (newGrid, numberToRemove) => {
+    const result = checkForWinner(newGrid);
     setGrid(newGrid);
 
-    const result = checkForWinner(newGrid);
     if (result) {
       setWinner(result);
-      if (result === "tie") {
-        setError("It's a tie!");
-      } else {
-        setError(null);
+      setError(result === "tie" ? "It's a tie!" : null);
+      if (result !== "tie") {
         setScore((prevScore) => ({
           ...prevScore,
           [currentPlayer]: prevScore[currentPlayer] + 1,
@@ -72,57 +59,63 @@ export default function GameBoard({ playerChoice }) {
       }
     } else {
       setCurrentPlayer(currentPlayer === "odd" ? "even" : "odd");
-      setAvailableNumbers(availableNumbers.slice(1));
+      setAvailableNumbers((prevNumbers) =>
+        prevNumbers.filter((num) => num !== numberToRemove)
+      );
     }
+  };
+
+  const handleCellClick = (row, col) => {
+    if (winner || grid[row][col] !== null) return;
+    const number = availableNumbers[0];
+    if (currentPlayer === "even" && number % 2 === 1) return;
+    if (currentPlayer === "odd" && number % 2 === 0) return;
+
+    const newGrid = grid.map((r) => r.slice());
+    newGrid[row][col] = number;
+    updateGridAndCheckWinner(newGrid, number);
   };
 
   const handleCellDrop = (row, col, e) => {
     const draggedNumber = parseInt(e.dataTransfer.getData("text/plain"), 10);
 
-    if (winner) return;
+    if (
+      winner ||
+      isNaN(draggedNumber) ||
+      draggedNumber < 0 ||
+      draggedNumber > 9
+    )
+      return;
 
     if (
       grid[row][col] === null ||
       (grid[row][col] !== null && draggedNumber === 0)
     ) {
-      if (currentPlayer === "even" && draggedNumber % 2 === 1) return;
-      if (currentPlayer === "odd" && draggedNumber % 2 === 0) return;
+      if (
+        (currentPlayer === "even" && draggedNumber % 2 === 1) ||
+        (currentPlayer === "odd" && draggedNumber % 2 === 0)
+      )
+        return;
 
       const newGrid = grid.map((r) => r.slice());
       newGrid[row][col] = draggedNumber;
-
-      setGrid(newGrid);
-
-      const result = checkForWinner(newGrid);
-      if (result) {
-        setWinner(result);
-        if (result === "tie") {
-          setError("It's a tie!");
-        } else {
-          setError(null);
-          setScore((prevScore) => ({
-            ...prevScore,
-            [currentPlayer]: prevScore[currentPlayer] + 1,
-          }));
-        }
-      } else {
-        setCurrentPlayer(currentPlayer === "odd" ? "even" : "odd");
-        setAvailableNumbers(
-          availableNumbers.filter((num) => num !== draggedNumber)
-        );
-      }
+      updateGridAndCheckWinner(newGrid, draggedNumber);
     } else {
-      setError("Cell already occupied!");
+      setError("Cell already occupied or invalid drop!");
       setTimeout(() => setError(null), 5000);
     }
   };
 
-  const handleCellDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleCellDragOver = (e) => e.preventDefault();
 
   const handleNumberClick = (number) => {
-    if (winner || availableNumbers.indexOf(number) === -1) return;
+    if (
+      winner ||
+      !availableNumbers.includes(number) ||
+      number < 0 ||
+      number > 9
+    )
+      return;
 
     if (selectedCell.row !== null && selectedCell.col !== null) {
       const newGrid = grid.map((r) => r.slice());
@@ -131,26 +124,7 @@ export default function GameBoard({ playerChoice }) {
         number === 0
       ) {
         newGrid[selectedCell.row][selectedCell.col] = number;
-
-        setGrid(newGrid);
-        setAvailableNumbers(availableNumbers.filter((n) => n !== number));
-
-        const result = checkForWinner(newGrid);
-        if (result) {
-          setWinner(result);
-          if (result === "tie") {
-            setError("It's a tie!");
-          } else {
-            setError(null);
-            setScore((prevScore) => ({
-              ...prevScore,
-              [currentPlayer]: prevScore[currentPlayer] + 1,
-            }));
-          }
-        } else {
-          setCurrentPlayer(currentPlayer === "odd" ? "even" : "odd");
-        }
-
+        updateGridAndCheckWinner(newGrid, number);
         setSelectedCell({ row: null, col: null });
       } else {
         setError("Cell already occupied!");
@@ -159,9 +133,8 @@ export default function GameBoard({ playerChoice }) {
     }
   };
 
-  const handleNumberDragStart = (e, number) => {
+  const handleNumberDragStart = (e, number) =>
     e.dataTransfer.setData("text/plain", number);
-  };
 
   return (
     <div className='GameBoard'>
