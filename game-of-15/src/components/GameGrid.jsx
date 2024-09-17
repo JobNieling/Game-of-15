@@ -17,12 +17,10 @@ export default function GameGrid({
               <td
                 key={j}
                 className={`cell ${
-                  selectedCell &&
-                  selectedCell.row === i &&
-                  selectedCell.col === j
+                  selectedCell.row === i && selectedCell.col === j
                     ? "selected"
                     : ""
-                }`}
+                } ${cell !== null ? "occupied" : ""}`}
                 onClick={() => onCellClick(i, j)}
                 onDragOver={onCellDragOver}
                 onDrop={(e) => onCellDrop(i, j, e)}

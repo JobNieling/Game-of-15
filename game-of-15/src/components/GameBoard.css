@@ -1,41 +1,51 @@
-/* components/GameBoard.css */
 .GameBoard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;
+  margin: 20px;
 }
 
-.GameGrid {
-  border-collapse: collapse;
-  margin-bottom: 20px;
+.error-message {
+  color: red;
+  font-size: 24px;
+  margin-top: 10px;
+}
+
+.selected {
+  background-color: lightblue;
 }
 
 .cell {
   width: 60px;
   height: 60px;
-  border: 1px solid black;
+  border: 1px solid #ccc;
   text-align: center;
   vertical-align: middle;
-  cursor: pointer;
   font-size: 24px;
+  cursor: pointer;
 }
 
-.cell:hover {
-  background-color: lightgray;
+.occupied {
+  background-color: #f0f0f0;
 }
 
-.cell.locked {
-  cursor: not-allowed;
+.cell-number {
+  font-weight: bold;
 }
 
-.scoreboard {
+.GameGrid {
+  margin: auto;
+  border-collapse: collapse;
+}
+
+.GameGrid td {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #ccc;
   text-align: center;
+  vertical-align: middle;
+  font-size: 24px;
+  cursor: pointer;
 }
 
-.scoreboard h3 {
-  margin: 0;
-}
-
-.scoreboard p {
-  margin: 5px 0;
+.GameGrid .selected {
+  background-color: lightblue;
 }

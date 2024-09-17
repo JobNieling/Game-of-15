@@ -1,7 +1,11 @@
 import React from "react";
 import "./Numbers.css";
 
-export default function Numbers({ availableNumbers = [], onNumberClick }) {
+export default function Numbers({
+  availableNumbers,
+  onNumberClick,
+  onNumberDragStart,
+}) {
   const handleDragStart = (number, e) => {
     e.dataTransfer.setData("text/plain", number); // Set data for drag
   };
@@ -16,9 +20,11 @@ export default function Numbers({ availableNumbers = [], onNumberClick }) {
             .map((n) => (
               <div
                 key={n}
-                className='number'
+                className={`number ${
+                  n === 0 ? "" : !availableNumbers.includes(n) ? "disabled" : ""
+                }`}
                 onClick={() => onNumberClick(n)}
-                draggable
+                draggable={availableNumbers.includes(n)}
                 onDragStart={(e) => handleDragStart(n, e)}
               >
                 {n}
@@ -35,9 +41,11 @@ export default function Numbers({ availableNumbers = [], onNumberClick }) {
             .map((n) => (
               <div
                 key={n}
-                className='number'
+                className={`number ${
+                  n === 0 ? "" : !availableNumbers.includes(n) ? "disabled" : ""
+                }`}
                 onClick={() => onNumberClick(n)}
-                draggable
+                draggable={availableNumbers.includes(n)}
                 onDragStart={(e) => handleDragStart(n, e)}
               >
                 {n}

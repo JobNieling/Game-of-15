@@ -1,0 +1,9 @@
+.EndScreen {
+  text-align: center;
+  margin: 20px;
+}
+
+.EndScreen button {
+  font-size: 18px;
+  margin-top: 20px;
+}

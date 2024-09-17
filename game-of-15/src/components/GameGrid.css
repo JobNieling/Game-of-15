@@ -1,28 +1,24 @@
-/* GameGrid.css */
-.GameGrid {
-  border-collapse: collapse;
-  border: 2px solid black;
-  margin-bottom: 20px;
-}
-
-.GameGrid td {
-  width: 15vw;
-  height: 10vh;
-  text-align: center;
-  border: 1px solid black;
-  position: relative;
+/* components/GameGrid.css */
+.cell {
+  /* existing styles */
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
-.GameGrid td:hover {
-  background-color: #f0f0f0;
+.cell.occupied {
+  cursor: not-allowed;
 }
 
-.GameGrid td.selected {
+.cell.selected {
   background-color: lightblue;
 }
 
 .cell-number {
-  font-size: 14px;
+  /* existing styles */
+}
+
+/* Error message styles */
+.error-message {
+  color: red;
+  font-size: 24px;
+  font-weight: bold;
 }

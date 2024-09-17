@@ -1,15 +1,24 @@
-// components/GameStatus.jsx
+// components/GameStatus.js
 import React from "react";
+import "./GameStatus.css";
 
 export default function GameStatus({ winner, onRestart, currentPlayer }) {
   if (winner) {
     return (
       <div className='game-status'>
-        {winner === "tie" ? <h2>It's a Tie!</h2> : <h2>{winner} Wins!</h2>}
+        {winner === "tie" ? (
+          <h2>It's a Tie!</h2>
+        ) : (
+          <h2>{winner === "odd" ? "Odd" : "Even"} Wins!</h2>
+        )}
         <button onClick={onRestart}>Play Again</button>
       </div>
     );
   }
 
-  return <h2>Current Player: {currentPlayer}</h2>;
+  return (
+    <div className='game-status'>
+      <h2>Player: {currentPlayer === "odd" ? "Odd's Turn" : "Even's Turn"}</h2>
+    </div>
+  );
 }

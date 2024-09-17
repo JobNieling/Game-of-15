@@ -1,23 +1,32 @@
-/* components/Numbers.css */
 .Numbers {
-  text-align: center;
+  display: flex;
+  justify-content: center;
   margin-top: 20px;
 }
 
-.Numbers ul {
-  list-style: none;
-  padding: 0;
+.Numbers-row {
+  margin: 10px;
+}
+
+.numbers-list {
   display: flex;
+  flex-wrap: wrap;
+}
+
+.number {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
   justify-content: center;
-}
-
-.Numbers li {
-  margin: 0 5px;
   font-size: 24px;
-  font-weight: bold;
   cursor: pointer;
+  margin: 5px;
+  background-color: #f9f9f9;
 }
 
-.Numbers li:hover {
-  background-color: lightgray;
+.number.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

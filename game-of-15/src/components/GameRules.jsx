@@ -1,13 +1,19 @@
-// components/GameRules.jsx
 import React, { useState } from "react";
 import GameBoard from "./GameBoard";
 import "./GameRules.css";
 
 export default function GameRules() {
   const [choice, setChoice] = useState(null);
+  const [playerChoice, setPlayerChoice] = useState(null);
 
   const startGame = (playerChoice) => {
-    setChoice(playerChoice);
+    setPlayerChoice(playerChoice);
+    setChoice("game");
+  };
+
+  const restartGame = () => {
+    setChoice(null);
+    setPlayerChoice(null);
   };
 
   return (
@@ -18,8 +24,13 @@ export default function GameRules() {
           <button onClick={() => startGame("odd")}>Start as Odd</button>
           <button onClick={() => startGame("even")}>Start as Even</button>
         </div>
+      ) : choice === "game" ? (
+        <GameBoard playerChoice={playerChoice} onRestart={restartGame} />
       ) : (
-        <GameBoard playerChoice={choice} />
+        <div>
+          <h1>Game Over</h1>
+          <button onClick={restartGame}>Play Again</button>
+        </div>
       )}
     </div>
   );

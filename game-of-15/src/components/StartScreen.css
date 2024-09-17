@@ -1,0 +1,49 @@
+.start-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #f4f4f4;
+  text-align: center;
+}
+
+.start-screen h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.choice-buttons {
+  margin-bottom: 20px;
+}
+
+.choice-button {
+  padding: 10px 20px;
+  font-size: 1.25rem;
+  margin: 5px;
+  border: 2px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.choice-button.selected {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.start-button {
+  padding: 15px 30px;
+  font-size: 1.5rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.start-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
