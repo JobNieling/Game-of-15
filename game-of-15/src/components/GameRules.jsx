@@ -11,12 +11,12 @@ export default function GameRules() {
   };
 
   return (
-    <div className="GameRules">
+    <div className='GameRules'>
       {choice === null ? (
         <div>
           <h1>Choose Your Side</h1>
-          <button onClick={() => startGame('odd')}>Start as Odd</button>
-          <button onClick={() => startGame('even')}>Start as Even</button>
+          <button onClick={() => startGame("odd")}>Start as Odd</button>
+          <button onClick={() => startGame("even")}>Start as Even</button>
         </div>
       ) : (
         <GameBoard playerChoice={choice} />

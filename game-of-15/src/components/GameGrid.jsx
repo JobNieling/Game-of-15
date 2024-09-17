@@ -1,4 +1,3 @@
-// GameGrid.js
 import React from "react";
 import "./GameGrid.css";
 
@@ -18,7 +17,9 @@ export default function GameGrid({
               <td
                 key={j}
                 className={`cell ${
-                  selectedCell.row === i && selectedCell.col === j
+                  selectedCell &&
+                  selectedCell.row === i &&
+                  selectedCell.col === j
                     ? "selected"
                     : ""
                 }`}

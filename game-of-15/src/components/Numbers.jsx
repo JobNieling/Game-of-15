@@ -1,8 +1,7 @@
-// components/Numbers.js
 import React from "react";
 import "./Numbers.css";
 
-export default function Numbers({ availableNumbers, onNumberClick }) {
+export default function Numbers({ availableNumbers = [], onNumberClick }) {
   const handleDragStart = (number, e) => {
     e.dataTransfer.setData("text/plain", number); // Set data for drag
   };
