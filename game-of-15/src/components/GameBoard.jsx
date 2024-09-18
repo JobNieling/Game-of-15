@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import useScoreboard from "../hooks/useScoreboard";
+import React, { useState, useEffect } from "react";
 import "./GameBoard.css";
 import Numbers from "./Numbers";
 import GameStatus from "./GameStatus";
+import Scoreboard from "./Scoreboard";
 
-const GameBoard = ({ playerChoice, onGameEnd }) => {
+export default function GameBoard({ playerChoice }) {
   const [grid, setGrid] = useState(
     Array(3)
       .fill(null)
@@ -17,18 +16,28 @@ const GameBoard = ({ playerChoice, onGameEnd }) => {
   ]);
   const [currentPlayer, setCurrentPlayer] = useState(playerChoice);
   const [winner, setWinner] = useState(null);
-  const { fetchScoreboard } = useScoreboard(); // Use the custom hook
+  const [score, setScore] = useState({ odd: 0, even: 0, tie: 0 });
+  const [error, setError] = useState(null);
 
-  const navigate = useNavigate(); // Hook for navigation
+  useEffect(() => {
+    // Reset the game board and current player based on the starting player
+    setGrid(
+      Array(3)
+        .fill(null)
+        .map(() => Array(3).fill(null))
+    );
+    setCurrentPlayer(playerChoice);
+    setAvailableNumbers([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    setWinner(null);
+  }, [playerChoice]);
 
-  // Check if there's a winner or a tie
   const checkForWinner = (newGrid) => {
     const lines = [
-      ...newGrid, // Rows
-      [newGrid[0][0], newGrid[1][0], newGrid[2][0]], // Columns
+      ...newGrid,
+      [newGrid[0][0], newGrid[1][0], newGrid[2][0]],
       [newGrid[0][1], newGrid[1][1], newGrid[2][1]],
       [newGrid[0][2], newGrid[1][2], newGrid[2][2]],
-      [newGrid[0][0], newGrid[1][1], newGrid[2][2]], // Diagonals
+      [newGrid[0][0], newGrid[1][1], newGrid[2][2]],
       [newGrid[0][2], newGrid[1][1], newGrid[2][0]],
     ];
 
@@ -44,17 +53,29 @@ const GameBoard = ({ playerChoice, onGameEnd }) => {
     return newGrid.flat().every((cell) => cell !== null) ? "tie" : null;
   };
 
-  const updateGridAndCheckWinner = (newGrid, numberToRemove) => {
+  const updateGridAndCheckWinner = async (newGrid, numberToRemove) => {
     const result = checkForWinner(newGrid);
     setGrid(newGrid);
 
     if (result) {
       setWinner(result);
+      setError(result === "tie" ? "It's a tie!" : null);
+
+      // Update the score locally
       if (result !== "tie") {
-        fetchScoreboard(); // Refresh scoreboard if there's a winner
+        setScore((prevScore) => ({
+          ...prevScore,
+          [result]: prevScore[result] + 1,
+        }));
+      } else {
+        setScore((prevScore) => ({
+          ...prevScore,
+          tie: prevScore.tie + 1,
+        }));
       }
-      onGameEnd(result); // Notify parent component of game result
-      navigate("/end"); // Redirect to end screen
+
+      // Update the scoreboard on the backend
+      await updateScoreboard(result);
     } else {
       setCurrentPlayer(currentPlayer === "odd" ? "even" : "odd");
       setAvailableNumbers((prevNumbers) =>
@@ -63,75 +84,133 @@ const GameBoard = ({ playerChoice, onGameEnd }) => {
     }
   };
 
-  // Handle clicking on a cell
   const handleCellClick = (row, col) => {
-    if (grid[row][col] !== null || winner) return; // Prevent clicking if cell is occupied or game is over
+    if (winner || grid[row][col] !== null) return;
 
-    if (selectedCell.row !== null && selectedCell.col !== null) {
-      const newGrid = grid.map((r, i) =>
-        r.map((cell, j) =>
-          i === row && j === col
-            ? grid[selectedCell.row][selectedCell.col]
-            : cell
-        )
-      );
-      newGrid[selectedCell.row][selectedCell.col] = null; // Clear the previous cell
-
-      updateGridAndCheckWinner(
-        newGrid,
-        grid[selectedCell.row][selectedCell.col]
-      );
-      setSelectedCell({ row: null, col: null }); // Deselect cell after placement
+    const number = availableNumbers[0];
+    if (currentPlayer === "even" && number % 2 === 1) {
+      setError("It's not your turn!");
+      setTimeout(() => setError(null), 5000);
+      return;
     }
-  };
-
-  // Handle dragging over a cell
-  const handleCellDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  // Handle dropping a number into a cell
-  const handleCellDrop = (row, col, e) => {
-    e.preventDefault();
-    const numberToDrop = parseInt(e.dataTransfer.getData("text"), 10);
-    if (!availableNumbers.includes(numberToDrop) || grid[row][col] !== null)
-      return; // Validate number and cell
-
-    const newGrid = grid.map((r, i) =>
-      r.map((cell, j) => (i === row && j === col ? numberToDrop : cell))
-    );
-
-    updateGridAndCheckWinner(newGrid, numberToDrop);
-  };
-
-  // Handle clicking on a number
-  const handleNumberClick = (number) => {
-    if (winner || !availableNumbers.includes(number)) return; // Prevent action if game is over or number is not available
-
-    if (selectedCell.row === null) {
-      alert("Please select a cell first.");
+    if (currentPlayer === "odd" && number % 2 === 0) {
+      setError("It's not your turn!");
+      setTimeout(() => setError(null), 5000);
       return;
     }
 
-    const newGrid = grid.map((r, i) =>
-      r.map((cell, j) =>
-        i === selectedCell.row && j === selectedCell.col ? number : cell
-      )
-    );
-
+    const newGrid = grid.map((r) => r.slice());
+    newGrid[row][col] = number;
     updateGridAndCheckWinner(newGrid, number);
   };
 
-  // Handle dragging a number
-  const handleNumberDragStart = (number, e) => {
-    e.dataTransfer.setData("text", number.toString());
+  const handleCellDrop = (row, col, e) => {
+    e.preventDefault();
+    const draggedNumber = parseInt(e.dataTransfer.getData("text/plain"), 10);
+
+    if (
+      winner ||
+      isNaN(draggedNumber) ||
+      draggedNumber < 0 ||
+      draggedNumber > 9
+    ) {
+      setError("Invalid move!");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    if (grid[row][col] !== null && draggedNumber !== 0) {
+      setError("Cell already occupied!");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    // Check if the dragged number matches the current player's turn
+    if (
+      (currentPlayer === "even" && draggedNumber % 2 === 1) ||
+      (currentPlayer === "odd" && draggedNumber % 2 === 0)
+    ) {
+      setError("It's not your turn!");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    const newGrid = grid.map((r) => r.slice());
+    newGrid[row][col] = draggedNumber;
+    updateGridAndCheckWinner(newGrid, draggedNumber);
   };
+
+  const handleCellDragOver = (e) => e.preventDefault();
+
+  const handleNumberClick = (number) => {
+    if (
+      winner ||
+      !availableNumbers.includes(number) ||
+      number < 0 ||
+      number > 9
+    )
+      return;
+
+    if (selectedCell.row !== null && selectedCell.col !== null) {
+      const newGrid = grid.map((r) => r.slice());
+      if (
+        newGrid[selectedCell.row][selectedCell.col] === null ||
+        number === 0
+      ) {
+        if (
+          (currentPlayer === "even" && number % 2 === 1) ||
+          (currentPlayer === "odd" && number % 2 === 0)
+        ) {
+          setError("It's not your turn!");
+          setTimeout(() => setError(null), 5000);
+          return;
+        }
+
+        newGrid[selectedCell.row][selectedCell.col] = number;
+        updateGridAndCheckWinner(newGrid, number);
+        setSelectedCell({ row: null, col: null });
+      } else {
+        setError("Cell already occupied!");
+        setTimeout(() => setError(null), 5000);
+      }
+    }
+  };
+
+  const handleNumberDragStart = (e, number) =>
+    e.dataTransfer.setData("text/plain", number);
+
+  async function updateScoreboard(winner) {
+    const scoreUpdate = {
+      [winner]: score[winner] + 1,
+      tie: score.tie,
+    };
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/update-scoreboard",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(scoreUpdate),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+      const data = await response.json();
+      console.log("Scoreboard updated:", data);
+    } catch (error) {
+      console.error("Error updating scoreboard:", error);
+    }
+  }
 
   return (
     <div className='GameBoard'>
       <GameStatus
         winner={winner}
-        onRestart={() => navigate("/")} // Use navigate to redirect to start screen
+        onRestart={() => window.location.reload()}
         currentPlayer={currentPlayer}
       />
       <Numbers
@@ -166,8 +245,8 @@ const GameBoard = ({ playerChoice, onGameEnd }) => {
           ))}
         </tbody>
       </table>
+      {error && <div className='error-message'>{error}</div>}
+      <Scoreboard />
     </div>
   );
-};
-
-export default GameBoard;
+}
