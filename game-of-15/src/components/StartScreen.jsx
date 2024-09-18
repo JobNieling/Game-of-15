@@ -10,6 +10,10 @@ export default function StartScreen({ onStartGame }) {
     }
   };
 
+  const handleAIPlay = () => {
+    console.log("AI Play");
+  };
+
   return (
     <div className='start-screen'>
       <h1>Game of 15</h1>
@@ -37,6 +41,13 @@ export default function StartScreen({ onStartGame }) {
         disabled={!playerChoice}
       >
         Start Game
+      </button>
+      <button
+        className='start-button'
+        onClick={handleAIPlay}
+        style={{ marginTop: "10px" }}
+      >
+        Play with AI
       </button>
     </div>
   );
