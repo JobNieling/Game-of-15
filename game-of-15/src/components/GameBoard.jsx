@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useScoreboard from "../hooks/useScoreboard";
 import "./GameBoard.css";
 import Numbers from "./Numbers";
 import GameStatus from "./GameStatus";
-import Scoreboard from "./Scoreboard";
 
-export default function GameBoard({ playerChoice }) {
+const GameBoard = ({ playerChoice, onGameEnd }) => {
   const [grid, setGrid] = useState(
     Array(3)
       .fill(null)
@@ -16,19 +17,18 @@ export default function GameBoard({ playerChoice }) {
   ]);
   const [currentPlayer, setCurrentPlayer] = useState(playerChoice);
   const [winner, setWinner] = useState(null);
-  const [score, setScore] = useState({ odd: 0, even: 0 });
-  const [error, setError] = useState(null);
+  const { fetchScoreboard } = useScoreboard(); // Use the custom hook
 
+  const navigate = useNavigate(); // Hook for navigation
+
+  // Check if there's a winner or a tie
   const checkForWinner = (newGrid) => {
     const lines = [
-      // Rows
-      ...newGrid,
-      // Columns
-      [newGrid[0][0], newGrid[1][0], newGrid[2][0]],
+      ...newGrid, // Rows
+      [newGrid[0][0], newGrid[1][0], newGrid[2][0]], // Columns
       [newGrid[0][1], newGrid[1][1], newGrid[2][1]],
       [newGrid[0][2], newGrid[1][2], newGrid[2][2]],
-      // Diagonals
-      [newGrid[0][0], newGrid[1][1], newGrid[2][2]],
+      [newGrid[0][0], newGrid[1][1], newGrid[2][2]], // Diagonals
       [newGrid[0][2], newGrid[1][1], newGrid[2][0]],
     ];
 
@@ -50,13 +50,11 @@ export default function GameBoard({ playerChoice }) {
 
     if (result) {
       setWinner(result);
-      setError(result === "tie" ? "It's a tie!" : null);
       if (result !== "tie") {
-        setScore((prevScore) => ({
-          ...prevScore,
-          [currentPlayer]: prevScore[currentPlayer] + 1,
-        }));
+        fetchScoreboard(); // Refresh scoreboard if there's a winner
       }
+      onGameEnd(result); // Notify parent component of game result
+      navigate("/end"); // Redirect to end screen
     } else {
       setCurrentPlayer(currentPlayer === "odd" ? "even" : "odd");
       setAvailableNumbers((prevNumbers) =>
@@ -65,123 +63,111 @@ export default function GameBoard({ playerChoice }) {
     }
   };
 
+  // Handle clicking on a cell
   const handleCellClick = (row, col) => {
-    if (winner || grid[row][col] !== null) return;
-    const number = availableNumbers[0];
-    if (currentPlayer === "even" && number % 2 === 1) return;
-    if (currentPlayer === "odd" && number % 2 === 0) return;
+    if (grid[row][col] !== null || winner) return; // Prevent clicking if cell is occupied or game is over
 
-    const newGrid = grid.map((r) => r.slice());
-    newGrid[row][col] = number;
+    if (selectedCell.row !== null && selectedCell.col !== null) {
+      const newGrid = grid.map((r, i) =>
+        r.map((cell, j) =>
+          i === row && j === col
+            ? grid[selectedCell.row][selectedCell.col]
+            : cell
+        )
+      );
+      newGrid[selectedCell.row][selectedCell.col] = null; // Clear the previous cell
+
+      updateGridAndCheckWinner(
+        newGrid,
+        grid[selectedCell.row][selectedCell.col]
+      );
+      setSelectedCell({ row: null, col: null }); // Deselect cell after placement
+    }
+  };
+
+  // Handle dragging over a cell
+  const handleCellDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  // Handle dropping a number into a cell
+  const handleCellDrop = (row, col, e) => {
+    e.preventDefault();
+    const numberToDrop = parseInt(e.dataTransfer.getData("text"), 10);
+    if (!availableNumbers.includes(numberToDrop) || grid[row][col] !== null)
+      return; // Validate number and cell
+
+    const newGrid = grid.map((r, i) =>
+      r.map((cell, j) => (i === row && j === col ? numberToDrop : cell))
+    );
+
+    updateGridAndCheckWinner(newGrid, numberToDrop);
+  };
+
+  // Handle clicking on a number
+  const handleNumberClick = (number) => {
+    if (winner || !availableNumbers.includes(number)) return; // Prevent action if game is over or number is not available
+
+    if (selectedCell.row === null) {
+      alert("Please select a cell first.");
+      return;
+    }
+
+    const newGrid = grid.map((r, i) =>
+      r.map((cell, j) =>
+        i === selectedCell.row && j === selectedCell.col ? number : cell
+      )
+    );
+
     updateGridAndCheckWinner(newGrid, number);
   };
 
-  const handleCellDrop = (row, col, e) => {
-    const draggedNumber = parseInt(e.dataTransfer.getData("text/plain"), 10);
-
-    if (
-      winner ||
-      isNaN(draggedNumber) ||
-      draggedNumber < 0 ||
-      draggedNumber > 9
-    )
-      return;
-
-    if (
-      grid[row][col] === null ||
-      (grid[row][col] !== null && draggedNumber === 0)
-    ) {
-      if (
-        (currentPlayer === "even" && draggedNumber % 2 === 1) ||
-        (currentPlayer === "odd" && draggedNumber % 2 === 0)
-      )
-        return;
-
-      const newGrid = grid.map((r) => r.slice());
-      newGrid[row][col] = draggedNumber;
-      updateGridAndCheckWinner(newGrid, draggedNumber);
-    } else {
-      setError("Cell already occupied or invalid drop!");
-      setTimeout(() => setError(null), 5000);
-    }
+  // Handle dragging a number
+  const handleNumberDragStart = (number, e) => {
+    e.dataTransfer.setData("text", number.toString());
   };
-
-  const handleCellDragOver = (e) => e.preventDefault();
-
-  const handleNumberClick = (number) => {
-    if (
-      winner ||
-      !availableNumbers.includes(number) ||
-      number < 0 ||
-      number > 9
-    )
-      return;
-
-    if (selectedCell.row !== null && selectedCell.col !== null) {
-      const newGrid = grid.map((r) => r.slice());
-      if (
-        newGrid[selectedCell.row][selectedCell.col] === null ||
-        number === 0
-      ) {
-        newGrid[selectedCell.row][selectedCell.col] = number;
-        updateGridAndCheckWinner(newGrid, number);
-        setSelectedCell({ row: null, col: null });
-      } else {
-        setError("Cell already occupied!");
-        setTimeout(() => setError(null), 5000);
-      }
-    }
-  };
-
-  const handleNumberDragStart = (e, number) =>
-    e.dataTransfer.setData("text/plain", number);
 
   return (
     <div className='GameBoard'>
       <GameStatus
         winner={winner}
-        onRestart={() => window.location.reload()}
+        onRestart={() => navigate("/")} // Use navigate to redirect to start screen
         currentPlayer={currentPlayer}
       />
-      {winner ? (
-        <Scoreboard score={score} />
-      ) : (
-        <>
-          <Numbers
-            availableNumbers={availableNumbers}
-            onNumberClick={handleNumberClick}
-            onNumberDragStart={handleNumberDragStart}
-          />
-          <table className='GameGrid'>
-            <tbody>
-              {grid.map((row, i) => (
-                <tr key={i}>
-                  {row.map((cell, j) => (
-                    <td
-                      key={j}
-                      className={`cell ${
-                        selectedCell.row === i && selectedCell.col === j
-                          ? "selected"
-                          : ""
-                      }`}
-                      onClick={() => handleCellClick(i, j)}
-                      onDragOver={handleCellDragOver}
-                      onDrop={(e) => handleCellDrop(i, j, e)}
-                    >
-                      {cell !== null ? (
-                        <span className='cell-number'>{cell}</span>
-                      ) : (
-                        ""
-                      )}
-                    </td>
-                  ))}
-                </tr>
+      <Numbers
+        availableNumbers={availableNumbers}
+        onNumberClick={handleNumberClick}
+        onNumberDragStart={handleNumberDragStart}
+      />
+      <table className='GameGrid'>
+        <tbody>
+          {grid.map((row, i) => (
+            <tr key={i}>
+              {row.map((cell, j) => (
+                <td
+                  key={j}
+                  className={`cell ${
+                    selectedCell.row === i && selectedCell.col === j
+                      ? "selected"
+                      : ""
+                  } ${cell !== null ? "occupied" : ""}`}
+                  onClick={() => handleCellClick(i, j)}
+                  onDragOver={handleCellDragOver}
+                  onDrop={(e) => handleCellDrop(i, j, e)}
+                >
+                  {cell !== null ? (
+                    <span className='cell-number'>{cell}</span>
+                  ) : (
+                    ""
+                  )}
+                </td>
               ))}
-            </tbody>
-          </table>
-          {error && <div className='error-message'>{error}</div>}
-        </>
-      )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
+
+export default GameBoard;

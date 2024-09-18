@@ -7,7 +7,7 @@ export default function Numbers({
   onNumberDragStart,
 }) {
   const handleDragStart = (number, e) => {
-    e.dataTransfer.setData("text/plain", number); // Set data for drag
+    e.dataTransfer.setData("text/plain", number);
   };
 
   return (

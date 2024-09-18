@@ -12,10 +12,6 @@
   background-color: lightblue;
 }
 
-.cell-number {
-  /* existing styles */
-}
-
 /* Error message styles */
 .error-message {
   color: red;
