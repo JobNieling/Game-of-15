@@ -1,10 +1,12 @@
+// GameBoard.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./GameBoard.css";
 import Numbers from "./Numbers";
 import GameStatus from "./GameStatus";
-import Scoreboard from "./Scoreboard";
 
 export default function GameBoard({ playerChoice }) {
+  const navigate = useNavigate(); // Initialize useNavigate
   const [grid, setGrid] = useState(
     Array(3)
       .fill(null)
@@ -20,7 +22,6 @@ export default function GameBoard({ playerChoice }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Reset the game board and current player based on the starting player
     setGrid(
       Array(3)
         .fill(null)
@@ -61,21 +62,17 @@ export default function GameBoard({ playerChoice }) {
       setWinner(result);
       setError(result === "tie" ? "It's a tie!" : null);
 
-      // Update the score locally
       if (result !== "tie") {
         setScore((prevScore) => ({
           ...prevScore,
           [result]: prevScore[result] + 1,
         }));
       } else {
-        setScore((prevScore) => ({
-          ...prevScore,
-          tie: prevScore.tie + 1,
-        }));
+        setScore((prevScore) => ({ ...prevScore, tie: prevScore.tie + 1 }));
       }
 
-      // Update the scoreboard on the backend
       await updateScoreboard(result);
+      navigate("/end");
     } else {
       setCurrentPlayer(currentPlayer === "odd" ? "even" : "odd");
       setAvailableNumbers((prevNumbers) =>
@@ -125,7 +122,6 @@ export default function GameBoard({ playerChoice }) {
       return;
     }
 
-    // Check if the dragged number matches the current player's turn
     if (
       (currentPlayer === "even" && draggedNumber % 2 === 1) ||
       (currentPlayer === "odd" && draggedNumber % 2 === 0)
@@ -210,7 +206,7 @@ export default function GameBoard({ playerChoice }) {
     <div className='GameBoard'>
       <GameStatus
         winner={winner}
-        onRestart={() => window.location.reload()}
+        onRestart={() => navigate("/")}
         currentPlayer={currentPlayer}
       />
       <Numbers
@@ -246,7 +242,7 @@ export default function GameBoard({ playerChoice }) {
         </tbody>
       </table>
       {error && <div className='error-message'>{error}</div>}
-      <Scoreboard />
+      {/* Remove the Scoreboard from here */}
     </div>
   );
 }
