@@ -10,31 +10,24 @@ import GameBoard from "./components/GameBoard";
 import EndScreen from "./components/EndScreen";
 import "./App.css";
 
-const Navigation = ({
-  playerChoice,
-  setPlayerChoice,
-  winner,
-  setWinner,
-  fetchScoreboard,
-}) => {
-  const navigate = useNavigate(); // useNavigate is now correctly used here
+const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
+  const navigate = useNavigate();
 
   const handleStartGame = (choice) => {
     setPlayerChoice(choice);
-    navigate("/playing"); // Use navigate to redirect to the game screen
+    navigate("/playing");
     console.log("Redirecting to /playing the user that begins is: ", choice);
   };
 
   const handleEndGame = (result) => {
     setWinner(result);
-    fetchScoreboard();
-    navigate("/end"); // Use navigate to redirect to the end screen
+    navigate("/end");
   };
 
   const handleRestart = () => {
     setPlayerChoice(null);
     setWinner(null);
-    navigate("/"); // Use navigate to redirect to the start screen
+    navigate("/");
   };
 
   return (
@@ -62,18 +55,6 @@ const Navigation = ({
 function App() {
   const [playerChoice, setPlayerChoice] = useState(null);
   const [winner, setWinner] = useState(null);
-  const [score, setScore] = useState({ odd: 0, even: 0, tie: 0 });
-
-  const fetchScoreboard = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/scoreboard");
-      if (!response.ok) throw new Error("Network response was not ok.");
-      const data = await response.json();
-      setScore(data);
-    } catch (error) {
-      console.error("Error fetching scoreboard:", error);
-    }
-  };
 
   return (
     <Router>
@@ -84,7 +65,6 @@ function App() {
             setPlayerChoice={setPlayerChoice}
             winner={winner}
             setWinner={setWinner}
-            fetchScoreboard={fetchScoreboard}
           />
         </main>
       </div>

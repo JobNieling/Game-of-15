@@ -1,12 +1,12 @@
 // GameBoard.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import "./GameBoard.css";
 import Numbers from "./Numbers";
 import GameStatus from "./GameStatus";
 
-export default function GameBoard({ playerChoice }) {
-  const navigate = useNavigate(); // Initialize useNavigate
+export default function GameBoard({ playerChoice, onGameEnd }) {
+  const navigate = useNavigate();
   const [grid, setGrid] = useState(
     Array(3)
       .fill(null)
@@ -72,7 +72,7 @@ export default function GameBoard({ playerChoice }) {
       }
 
       await updateScoreboard(result);
-      navigate("/end");
+      onGameEnd(result); // Notify parent component to navigate
     } else {
       setCurrentPlayer(currentPlayer === "odd" ? "even" : "odd");
       setAvailableNumbers((prevNumbers) =>
@@ -186,15 +186,11 @@ export default function GameBoard({ playerChoice }) {
         "http://localhost:5000/api/update-scoreboard",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(scoreUpdate),
         }
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok.");
-      }
+      if (!response.ok) throw new Error("Network response was not ok.");
       const data = await response.json();
       console.log("Scoreboard updated:", data);
     } catch (error) {
@@ -206,7 +202,7 @@ export default function GameBoard({ playerChoice }) {
     <div className='GameBoard'>
       <GameStatus
         winner={winner}
-        onRestart={() => navigate("/")}
+        onRestart={() => navigate("/start")}
         currentPlayer={currentPlayer}
       />
       <Numbers
@@ -242,7 +238,6 @@ export default function GameBoard({ playerChoice }) {
         </tbody>
       </table>
       {error && <div className='error-message'>{error}</div>}
-      {/* Remove the Scoreboard from here */}
     </div>
   );
 }
