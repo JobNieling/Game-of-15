@@ -230,7 +230,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     };
 
     // Determine random delay between 5 and 30 seconds
-    const delay = Math.random() * (30000 - 5000) + 5000;
+    const delay = Math.random() * (3000 - 500) + 500;
 
     // Set a timeout to simulate AI thinking time
     setTimeout(() => {
