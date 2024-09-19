@@ -1,8 +1,18 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import json
+import os
+import concurrent.futures
+import time
 import math
+
+app = Flask(__name__)
+# CORS(app)  # This will enable CORS for all routes
 
 GRID_WIDTH = 3
 GRID_HEIGHT = 3
 
+@app.route('/api/ai-move', methods=['POST'])
 class GameOf15:
     def __init__(self):
         self.grid = [[0] * GRID_WIDTH for _ in range(GRID_HEIGHT)]
@@ -64,7 +74,7 @@ class GameOf15:
 
     def find_best_move(self, grid, available_numbers, current_player):
         # Replace all None values in a grid with 0
-        # grid = [[0 if cell is None else cell for cell in row] for row in grid]
+        grid = [["-" if cell is None else cell for cell in row] for row in grid]
 
         # Determine AI's numbers based on the current player
         if current_player == 'odd':
@@ -84,10 +94,10 @@ class GameOf15:
             if num in available_numbers:
                 for i in range(GRID_HEIGHT):
                     for j in range(GRID_WIDTH):
-                        if grid[i][j] == 0:  # Check for empty cell
+                        if grid[i][j] == "-":  # Check for empty cell
                             grid[i][j] = num
                             score = self.minimax(grid, [n for n in available_numbers if n != num], 'Player' if current_player == 'AI' else 'AI')
-                            grid[i][j] = 0
+                            grid[i][j] = "-"
                             print(f"Evaluated move: ({i}, {j}, {num}) with score: {score}")
                             if score > best_score:
                                 best_score = score
@@ -100,3 +110,6 @@ class GameOf15:
 
         print(f"Best move: {best_move}")
         return best_move if best_move is not None else (None, None, None)
+
+if __name__ == '__main__':
+    app.run(debug=True)

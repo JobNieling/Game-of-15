@@ -11,16 +11,20 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       .map(() => Array(3).fill(null))
   );
   const [selectedCell, setSelectedCell] = useState({ row: null, col: null });
-  const [availableNumbers, setAvailableNumbers] = useState([
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-  ]);
+  const [availableNumbers, setAvailableNumbers] = useState([]);
+  const [ai_number, setAiNumber] = useState(
+    playerChoice === "odd" ? [0, 2, 4, 6, 8] : [1, 3, 5, 7, 9]
+  );
   const [currentPlayer, setCurrentPlayer] = useState(playerChoice);
   const [winner, setWinner] = useState(null);
   const [error, setError] = useState(null);
   const [currentGrid, setCurrentGrid] = useState(grid);
-  const aiPlayer = playerChoice === "odd" ? "even" : "odd"; // AI is the opposite
+  const [isProcessing, setIsProcessing] = useState(false); // New state to prevent interaction during AI turn
+  const aiPlayer = playerChoice === "odd" ? "even" : "odd";
+  const player = playerChoice;
   const navigate = useNavigate();
 
+  // Reset the game state when the player choice changes
   useEffect(() => {
     setGrid(
       Array(3)
@@ -32,12 +36,26 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     setWinner(null);
   }, [playerChoice]);
 
+  // Update AI's available numbers when playerChoice changes
   useEffect(() => {
-    if (currentPlayer === aiPlayer) {
+    if (currentPlayer === aiPlayer && !winner) {
+      // console.log("Turn went from:", player, "to", aiPlayer);
+      // console.log("AI's turn frontend");
+      // console.log("AI Player: ", aiPlayer);
+      // console.log("Player: ", player);
+      // console.log("AI Number: ", ai_number);
+      // console.log("Is this even valid? try2", getAvailableNumbers(aiPlayer));
+      setAiNumber(getAvailableNumbers(aiPlayer));
+      // console.log("AI Number 2: ", ai_number);
       handleAIPlay();
     }
-  }, [currentPlayer]);
+  }, [currentPlayer, winner]);
 
+  const getAvailableNumbers = (playerType) => {
+    return playerType === "odd" ? [1, 3, 5, 7, 9] : [0, 2, 4, 6, 8];
+  };
+
+  // Check for a winner or tie
   const checkForWinner = (newGrid) => {
     const lines = [
       ...newGrid,
@@ -60,6 +78,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     return newGrid.flat().every((cell) => cell !== null) ? "tie" : null;
   };
 
+  // Update the grid and check for a winner after a move
   const updateGridAndCheckWinner = (newGrid, numberToRemove) => {
     const result = checkForWinner(newGrid);
     setGrid(newGrid);
@@ -74,16 +93,20 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       setAvailableNumbers((prevNumbers) =>
         prevNumbers.filter((num) => num !== numberToRemove)
       );
-
-      if (currentPlayer === playerChoice) {
-        handleAIPlay();
-      }
     }
   };
 
+  // Handle cell click
   const handleCellClick = (row, col) => {
-    if (winner || grid[row][col] !== null || currentPlayer !== playerChoice)
+    if (
+      winner ||
+      grid[row][col] !== null ||
+      currentPlayer !== playerChoice ||
+      isProcessing
+    ) {
+      setError("Invalid action!");
       return;
+    }
 
     const number = availableNumbers[0];
     if (
@@ -100,6 +123,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     updateGridAndCheckWinner(newGrid, number);
   };
 
+  // Handle cell drop event
   const handleCellDrop = (row, col, e) => {
     e.preventDefault();
     const draggedNumber = parseInt(e.dataTransfer.getData("text/plain"), 10);
@@ -108,7 +132,8 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       winner ||
       isNaN(draggedNumber) ||
       draggedNumber < 0 ||
-      draggedNumber > 9
+      draggedNumber > 9 ||
+      isProcessing
     ) {
       setError("Invalid move!");
       setTimeout(() => setError(null), 5000);
@@ -149,6 +174,8 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       return;
     }
 
+    console.log("AI Turn");
+
     // Function to handle the AI move after a delay
     const processAIMove = async () => {
       try {
@@ -159,7 +186,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
           },
           body: JSON.stringify({
             grid: grid,
-            available_numbers: availableNumbers,
+            available_numbers: ai_number,
             currentPlayer: currentPlayer,
           }),
         });
@@ -194,6 +221,9 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
         setAvailableNumbers((prevNumbers) =>
           prevNumbers.filter((num) => num !== number)
         );
+        setAiNumber((prevNumbers) =>
+          prevNumbers.filter((num) => num !== number)
+        );
       } catch (error) {
         console.error("Failed to fetch AI move:", error);
       }
@@ -217,7 +247,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       />
       <Numbers
         availableNumbers={availableNumbers}
-        onNumberClick={handleCellClick} // Click for player's choice
+        onNumberClick={handleCellClick}
         onNumberDragStart={(e, number) =>
           e.dataTransfer.setData("text/plain", number)
         }
