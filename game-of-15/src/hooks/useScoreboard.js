@@ -17,8 +17,8 @@ const useScoreboard = () => {
 
   useEffect(() => {
     fetchScoreboard();
-    const intervalId = setInterval(fetchScoreboard, 5000);
-    return () => clearInterval(intervalId);
+    // const intervalId = setInterval(fetchScoreboard, 5000);
+    // return () => clearInterval(intervalId);
   }, [fetchScoreboard]);
 
   return { score, fetchScoreboard };
