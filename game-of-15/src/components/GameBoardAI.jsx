@@ -114,19 +114,32 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
 
   // Handle number selection
   const handleNumberClick = (number) => {
-    setSelectedNumber(number); // Set the selected number
+    // Check if the number belongs to the current player
+    const isCurrentPlayerOdd = currentPlayer === "odd";
+    const isNumberOdd = number % 2 !== 0;
+
+    if (
+      (isCurrentPlayerOdd && isNumberOdd) ||
+      (!isCurrentPlayerOdd && !isNumberOdd)
+    ) {
+      setSelectedNumber(number); // Set the selected number if it's valid
+    } else {
+      setError("You cannot select this number!"); // Show error if it's not the player's number
+      setTimeout(() => setError(null), 3000); // Clear error after a timeout
+    }
   };
 
-  // Handle cell click
   const handleCellClick = (row, col) => {
     if (selectedNumber !== null) {
       // If a number is selected, place it in the cell
-      handleCellDrop(row, col, { preventDefault: () => {} });
+      const newGrid = grid.map((r) => r.slice());
+      newGrid[row][col] = selectedNumber; // Place the selected number directly
+      updateGridAndCheckWinner(newGrid, selectedNumber);
+      setSelectedNumber(null); // Reset selected number after placing
     }
     setSelectedCell({ row, col }); // Update the selected cell
   };
 
-  // Handle cell drop event
   const handleCellDrop = (row, col, e) => {
     e.preventDefault();
     const draggedNumber = parseInt(e.dataTransfer.getData("text/plain"), 10);
@@ -160,7 +173,6 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     const newGrid = grid.map((r) => r.slice());
     newGrid[row][col] = draggedNumber;
     updateGridAndCheckWinner(newGrid, draggedNumber);
-    setSelectedNumber(null);
   };
 
   const handleCellDragOver = (e) => e.preventDefault();
