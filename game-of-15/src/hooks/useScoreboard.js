@@ -17,8 +17,8 @@ const useScoreboard = () => {
 
   useEffect(() => {
     fetchScoreboard();
-    const intervalId = setInterval(fetchScoreboard, 5000); // Poll every 5 seconds
-    return () => clearInterval(intervalId); // Clean up interval on component unmount
+    const intervalId = setInterval(fetchScoreboard, 5000);
+    return () => clearInterval(intervalId);
   }, [fetchScoreboard]);
 
   return { score, fetchScoreboard };

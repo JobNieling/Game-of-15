@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./StartScreen.css";
 
-export default function StartScreen({ onStartGame }) {
+export default function StartScreen({ onStartGame, onPlayWithAI }) {
   const [playerChoice, setPlayerChoice] = useState("");
 
   const handleStartClick = () => {
@@ -11,7 +11,9 @@ export default function StartScreen({ onStartGame }) {
   };
 
   const handleAIPlay = () => {
-    console.log("AI Play");
+    if (playerChoice) {
+      onPlayWithAI(playerChoice, true);
+    }
   };
 
   return (
@@ -45,6 +47,7 @@ export default function StartScreen({ onStartGame }) {
       <button
         className='start-button'
         onClick={handleAIPlay}
+        disabled={!playerChoice}
         style={{ marginTop: "10px" }}
       >
         Play with AI
