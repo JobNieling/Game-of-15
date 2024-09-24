@@ -10,8 +10,8 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       .fill(null)
       .map(() => Array(3).fill(null))
   );
-  const [placementOrder, setPlacementOrder] = useState([]); // Track number placement order
-  const [selectedCell, setSelectedCell] = useState({ row: null, col: null });
+  const [placementOrder, setPlacementOrder] = useState([]);
+  // const [selectedCell, setSelectedCell] = useState({ row: null, col: null });
   const [availableNumbers, setAvailableNumbers] = useState([
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
   ]);
@@ -21,7 +21,6 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
   const [currentPlayer, setCurrentPlayer] = useState(playerChoice);
   const [winner, setWinner] = useState(null);
   const [error, setError] = useState(null);
-  const [score, setScore] = useState({ odd: 0, even: 0, tie: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
   const aiPlayer = playerChoice === "odd" ? "even" : "odd";
   const navigate = useNavigate();
@@ -55,7 +54,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
         .fill(null)
         .map(() => Array(3).fill(null))
     );
-    setCurrentPlayer(playerChoice);
+    setCurrentPlayer(aiPlayer);
     setAvailableNumbers([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     setWinner(null);
     setPlacementOrder([]);
@@ -105,24 +104,15 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     // Determine winner based on result and current player
     if (result === "tie") {
       winner = "tie";
-      setScore((prevScore) => ({
-        ...prevScore,
-        tie: prevScore.tie + 1,
-      }));
     } else {
-      // Update score based on the winner
-      setScore((prevScore) => {
-        const newScore = { ...prevScore };
-        newScore[result] = prevScore[result] + 1;
-        return newScore;
-      });
-
       // Determine if the winner is AI or player
       if (currentPlayer === aiPlayer) {
         winner = aiPlayer === "even" ? "ai_win_even" : "ai_win_odd";
-      } else {
+      } else if (currentPlayer === playerChoice) {
         winner =
           currentPlayer === "even" ? "player_win_even" : "player_win_odd";
+      } else {
+        console.error("Invalid winner");
       }
     }
 
@@ -203,7 +193,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       setTimeout(() => setError(null), 3000);
     }
 
-    setSelectedCell({ row, col });
+    // setSelectedCell({ row, col });
   };
 
   const handleAIPlay = async () => {
@@ -245,6 +235,43 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     }
   };
 
+  const handleCellDrop = (row, col, e) => {
+    e.preventDefault();
+    const draggedNumber = parseInt(e.dataTransfer.getData("text/plain"), 10);
+
+    if (
+      winner ||
+      isNaN(draggedNumber) ||
+      draggedNumber < 0 ||
+      draggedNumber > 9
+    ) {
+      setError("Invalid move!");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    if (grid[row][col] !== null && draggedNumber !== 0) {
+      setError("Cell already occupied!");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    if (
+      (currentPlayer === "even" && draggedNumber % 2 === 1) ||
+      (currentPlayer === "odd" && draggedNumber % 2 === 0)
+    ) {
+      setError("It's not your turn!");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    const newGrid = grid.map((r) => r.slice());
+    newGrid[row][col] = draggedNumber;
+    updateGridAndCheckWinner(newGrid, draggedNumber);
+  };
+
+  const handleCellDragOver = (e) => e.preventDefault();
+
   return (
     <div className='GameBoard'>
       <GameStatus
@@ -266,6 +293,8 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
                   key={j}
                   className='GameCell'
                   onClick={() => handleCellClick(i, j)}
+                  onDragOver={handleCellDragOver}
+                  onDrop={(e) => handleCellDrop(i, j, e)}
                 >
                   {cell !== null ? cell : ""}
                 </td>

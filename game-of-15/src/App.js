@@ -21,8 +21,8 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
   };
 
   const handleAIPlay = (choice) => {
-    setPlayerChoice(!choice);
-    navigate("/AIPlaying"); // Use navigate to redirect to the game screen
+    setPlayerChoice(choice);
+    navigate("/AIPlaying");
     console.log(
       "Redirecting to /AIPlaying the user that begins is: ",
       playerChoice

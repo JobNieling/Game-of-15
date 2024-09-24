@@ -4,7 +4,7 @@ import json
 import os
 import concurrent.futures
 import time
-from ai import GameOf15
+# from ai import GameOf15
 import math
 
 GRID_WIDTH = 3

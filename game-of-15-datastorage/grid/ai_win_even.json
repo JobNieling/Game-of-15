@@ -150,5 +150,73 @@
             }
         ],
         "winner": "ai_win_even"
+    },
+    {
+        "grid": [
+            [
+                0,
+                null,
+                null
+            ],
+            [
+                null,
+                7,
+                null
+            ],
+            [
+                null,
+                null,
+                null
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 0
+            },
+            {
+                "step": 2,
+                "number": 7
+            }
+        ],
+        "winner": "ai_win_even"
+    },
+    {
+        "grid": [
+            [
+                0,
+                2,
+                null
+            ],
+            [
+                9,
+                null,
+                null
+            ],
+            [
+                null,
+                7,
+                null
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 0
+            },
+            {
+                "step": 2,
+                "number": 7
+            },
+            {
+                "step": 3,
+                "number": 2
+            },
+            {
+                "step": 4,
+                "number": 9
+            }
+        ],
+        "winner": "ai_win_even"
     }
 ]
