@@ -1,0 +1,154 @@
+[
+    {
+        "grid": [
+            [
+                0,
+                null,
+                9
+            ],
+            [
+                null,
+                5,
+                null
+            ],
+            [
+                null,
+                null,
+                null
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 5
+            },
+            {
+                "step": 2,
+                "number": 0
+            },
+            {
+                "step": 3,
+                "number": 9
+            }
+        ],
+        "winner": "ai_win_even"
+    },
+    {
+        "grid": [
+            [
+                0,
+                2,
+                null
+            ],
+            [
+                5,
+                null,
+                1
+            ],
+            [
+                null,
+                9,
+                null
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 5
+            },
+            {
+                "step": 2,
+                "number": 0
+            },
+            {
+                "step": 3,
+                "number": 1
+            },
+            {
+                "step": 4,
+                "number": 2
+            },
+            {
+                "step": 5,
+                "number": 9
+            }
+        ],
+        "winner": "ai_win_even"
+    },
+    {
+        "grid": [
+            [
+                0,
+                2,
+                5
+            ],
+            [
+                null,
+                7,
+                null
+            ],
+            [
+                null,
+                null,
+                9
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 7
+            },
+            {
+                "step": 2,
+                "number": 0
+            },
+            {
+                "step": 3,
+                "number": 9
+            },
+            {
+                "step": 4,
+                "number": 2
+            },
+            {
+                "step": 5,
+                "number": 5
+            }
+        ],
+        "winner": "ai_win_even"
+    },
+    {
+        "grid": [
+            [
+                0,
+                null,
+                9
+            ],
+            [
+                null,
+                3,
+                null
+            ],
+            [
+                null,
+                null,
+                null
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 3
+            },
+            {
+                "step": 2,
+                "number": 0
+            },
+            {
+                "step": 3,
+                "number": 9
+            }
+        ],
+        "winner": "ai_win_even"
+    }
+]

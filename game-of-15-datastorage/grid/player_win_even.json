@@ -1,0 +1,48 @@
+[
+    {
+        "grid": [
+            [
+                4,
+                1,
+                null
+            ],
+            [
+                3,
+                null,
+                6
+            ],
+            [
+                5,
+                8,
+                null
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 4
+            },
+            {
+                "step": 2,
+                "number": 1
+            },
+            {
+                "step": 3,
+                "number": 6
+            },
+            {
+                "step": 4,
+                "number": 3
+            },
+            {
+                "step": 5,
+                "number": 8
+            },
+            {
+                "step": 6,
+                "number": 5
+            }
+        ],
+        "winner": "player_win_even"
+    }
+]

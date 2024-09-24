@@ -10,11 +10,13 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       .fill(null)
       .map(() => Array(3).fill(null))
   );
+  const [placementOrder, setPlacementOrder] = useState([]); // Track number placement order
   const [selectedCell, setSelectedCell] = useState({ row: null, col: null });
   const [availableNumbers, setAvailableNumbers] = useState([
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
   ]);
   const [aiNumbers, setAiNumbers] = useState([]);
+  const [playerNumbers, setPlayerNumbers] = useState([]);
   const [selectedNumber, setSelectedNumber] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState(playerChoice);
   const [winner, setWinner] = useState(null);
@@ -29,29 +31,24 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     return allNumbers.filter((number) => !usedNumbers.includes(number));
   };
 
-  // Helper function to extract all used numbers from the grid
   const getUsedNumbers = (grid) => {
     return grid.flat().filter((cell) => cell !== null);
   };
 
   useEffect(() => {
-    // Update AI numbers whenever the grid changes or a number is used
     setAiNumbers(getAvailableNumbers(aiPlayer, getUsedNumbers(grid)));
   }, [grid]);
 
-  // Reset game state when player choice changes
   useEffect(() => {
     resetGameState();
   }, [playerChoice]);
 
-  // Handle AI turn when it's AI's turn and no winner is declared
   useEffect(() => {
     if (currentPlayer === aiPlayer && !winner) {
       handleAIPlay();
     }
   }, [currentPlayer, winner]);
 
-  // Reset the game state
   const resetGameState = () => {
     setGrid(
       Array(3)
@@ -61,10 +58,10 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     setCurrentPlayer(playerChoice);
     setAvailableNumbers([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     setWinner(null);
+    setPlacementOrder([]);
     setIsProcessing(false);
   };
 
-  // Check for a winner or a tie
   const checkForWinner = (newGrid) => {
     const lines = [
       ...newGrid,
@@ -87,7 +84,6 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     return newGrid.flat().every((cell) => cell !== null) ? "tie" : null;
   };
 
-  // Update grid and check for a winner
   const updateGridAndCheckWinner = async (newGrid, numberToRemove) => {
     const result = checkForWinner(newGrid);
     setGrid(newGrid);
@@ -100,22 +96,59 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     }
   };
 
-  // Handle game end and update scoreboard
   const handleGameEnd = async (result) => {
     setWinner(result);
     setError(result === "tie" ? "It's a tie!" : null);
 
-    setScore((prevScore) => {
-      const newScore = { ...prevScore };
-      newScore[result] = prevScore[result] + 1;
-      return newScore;
-    });
+    let winner;
 
-    await updateScoreboard(result);
+    // Determine winner based on result and current player
+    if (result === "tie") {
+      winner = "tie";
+      setScore((prevScore) => ({
+        ...prevScore,
+        tie: prevScore.tie + 1,
+      }));
+    } else {
+      // Update score based on the winner
+      setScore((prevScore) => {
+        const newScore = { ...prevScore };
+        newScore[result] = prevScore[result] + 1;
+        return newScore;
+      });
+
+      // Determine if the winner is AI or player
+      if (currentPlayer === aiPlayer) {
+        winner = aiPlayer === "even" ? "ai_win_even" : "ai_win_odd";
+      } else {
+        winner =
+          currentPlayer === "even" ? "player_win_even" : "player_win_odd";
+      }
+    }
+
+    await saveGameResult(winner);
+
     onGameEnd(result);
   };
 
-  // Update available numbers after a move
+  // Save game state and placement order to the backend
+  const saveGameResult = async (result) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/save-grid", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          grid,
+          placement_order: placementOrder,
+          result,
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to save game result");
+    } catch (error) {
+      console.error("Error saving game result:", error);
+    }
+  };
+
   const updateAvailableNumbers = (numberToRemove) => {
     setAvailableNumbers((prevNumbers) =>
       prevNumbers.filter((num) => num !== numberToRemove)
@@ -123,9 +156,11 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     setAiNumbers((prevNumbers) =>
       prevNumbers.filter((num) => num !== numberToRemove)
     );
+    setPlayerNumbers((prevNumbers) =>
+      prevNumbers.filter((num) => num !== numberToRemove)
+    );
   };
 
-  // Handle number selection
   const handleNumberClick = (number) => {
     if (isNumberSelectable(number)) {
       setSelectedNumber(number);
@@ -135,7 +170,6 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     }
   };
 
-  // Check if a number is selectable by the current player
   const isNumberSelectable = (number) => {
     const isCurrentPlayerOdd = currentPlayer === "odd";
     const isNumberOdd = number % 2 !== 0;
@@ -145,9 +179,8 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     );
   };
 
-  // Handle cell click for placing a number
   const handleCellClick = (row, col) => {
-    if (isProcessing || winner) return; // Prevent interaction during AI processing or if game is over
+    if (isProcessing || winner) return;
 
     const cellValue = grid[row][col];
     if (
@@ -156,6 +189,13 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     ) {
       const newGrid = grid.map((r) => r.slice());
       newGrid[row][col] = selectedNumber;
+
+      // Add the number placement to the placement order
+      setPlacementOrder((prevOrder) => [
+        ...prevOrder,
+        { step: prevOrder.length + 1, number: selectedNumber },
+      ]);
+
       updateGridAndCheckWinner(newGrid, selectedNumber);
       setSelectedNumber(null);
     } else {
@@ -166,7 +206,6 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     setSelectedCell({ row, col });
   };
 
-  // Handle AI's move
   const handleAIPlay = async () => {
     if (isProcessing || winner) return;
 
@@ -178,6 +217,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
         body: JSON.stringify({
           grid,
           available_numbers: aiNumbers,
+          opponent_available_numbers: playerNumbers,
           currentPlayer,
         }),
       });
@@ -189,29 +229,19 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       if (row !== undefined && col !== undefined && number !== undefined) {
         const newGrid = grid.map((r) => r.slice());
         newGrid[row][col] = number;
+
+        // Add the AI number placement to the placement order
+        setPlacementOrder((prevOrder) => [
+          ...prevOrder,
+          { step: prevOrder.length + 1, number },
+        ]);
+
         await updateGridAndCheckWinner(newGrid, number);
       }
     } catch (error) {
       console.error("Error during AI move:", error);
     } finally {
       setIsProcessing(false);
-    }
-  };
-
-  // Update scoreboard on the server
-  const updateScoreboard = async (result) => {
-    try {
-      const response = await fetch(
-        "http://localhost:5000/api/update-scoreboard",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ [result]: score[result] + 1, tie: score.tie }),
-        }
-      );
-      if (!response.ok) throw new Error("Failed to update scoreboard");
-    } catch (error) {
-      console.error("Error updating scoreboard:", error);
     }
   };
 
@@ -225,9 +255,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
       <Numbers
         availableNumbers={availableNumbers}
         onNumberClick={handleNumberClick}
-        onNumberDragStart={(e, number) =>
-          e.dataTransfer.setData("text/plain", number)
-        }
+        onNumberDragStart={(e, number) => setSelectedNumber(number)}
       />
       <table className='GameGrid'>
         <tbody>
@@ -247,11 +275,6 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
         </tbody>
       </table>
       {error && <div className='error'>{error}</div>}
-      {winner && (
-        <button className='play-again' onClick={() => navigate("/start")}>
-          Play Again
-        </button>
-      )}
     </div>
   );
 }

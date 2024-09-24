@@ -11,10 +11,68 @@ GRID_WIDTH = 3
 GRID_HEIGHT = 3
 
 app = Flask(__name__)
-CORS(app)  # This will enable CORS for all routes
+CORS(app)
 
 # Path to the scoreboard file
 SCOREBOARD_FILE = '../game-of-15-datastorage/scoreboard.json'
+GRID_STORAGE_DIR = '../game-of-15-datastorage/grid/'
+
+# Ensure the directories exist or create them
+def ensure_directory_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+def save_grid_with_placement(grid, placement_order, result):
+    file_mapping = {
+        'player_win_odd': os.path.join(GRID_STORAGE_DIR, 'player_win_odd.json'),
+        'player_win_even': os.path.join(GRID_STORAGE_DIR, 'player_win_even.json'),
+        'ai_win_odd': os.path.join(GRID_STORAGE_DIR, 'ai_win_odd.json'),
+        'ai_win_even': os.path.join(GRID_STORAGE_DIR, 'ai_win_even.json'),
+        'tie': os.path.join(GRID_STORAGE_DIR, 'tie.json')
+    }
+
+    ensure_directory_exists(GRID_STORAGE_DIR)
+ 
+    file_path = file_mapping.get(result)
+
+    # Load existing grids
+    grids = []
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            grids = json.load(f)
+
+    # Check if the current grid's placement_order already exists
+    placement_order_exists = any(existing['placement_order'] == placement_order for existing in grids)
+
+    if placement_order_exists:
+        return  # Exit the function if the placement order already exists
+
+    # If the placement order doesn't exist, save it
+    grid_data = {
+        'grid': grid,
+        'placement_order': placement_order,
+        'winner': result
+    }
+
+    grids.append(grid_data)
+
+    with open(file_path, 'w') as f:
+        json.dump(grids, f, indent=4)
+
+
+    with open(file_path, 'w') as f:
+        json.dump(grids, f, indent=4)
+
+@app.route('/api/save-grid', methods=['POST'])
+def save_grid_endpoint():
+    data = request.get_json()
+    grid = data['grid']
+    placement_order = data['placement_order']
+    result = data['result']
+    
+    save_grid_with_placement(grid, placement_order, result)
+
+    return jsonify({'message': 'Grid saved successfully!'})
 
 # Load existing scoreboard data or initialize if the file does not exist
 def load_scoreboard():
@@ -41,15 +99,12 @@ def update_scoreboard():
     global scoreboard
     data = request.json
 
-    # Update scoreboard with received data
     for key in data:
         if key in scoreboard:
             scoreboard[key] += data.get(key, 0)
 
-    # Save updated scoreboard to file
     save_scoreboard(scoreboard)
 
-    # Return updated scoreboard
     return jsonify(scoreboard)
 
 @app.route('/api/reset-scoreboard', methods=['POST'])
@@ -64,12 +119,22 @@ def ai_move():
     data = request.get_json()
     grid = data['grid']
     available_numbers = data['available_numbers']
+    opponent_available_numbers = data['opponent_available_numbers']
     current_player = data['currentPlayer']
 
     # Determine AI number based on current player
     ai_number = 1 if current_player == "odd" else 2
 
-    # Check for immediate win or block
+    # Check if opponent can win and block it
+    for line in get_all_lines():
+        for number in opponent_available_numbers:
+            if can_opponent_win(grid, line, number):
+                # Find an empty cell in that line to block the opponent
+                for row, col in line:
+                    if grid[row][col] is None:
+                        return jsonify({'row': row, 'col': col, 'number': available_numbers[0]})
+
+    # Check for immediate win or block for AI
     for line in get_all_lines():
         cells = [grid[row][col] for row, col in line]
         empty_cells = [(row, col) for row, col in line if grid[row][col] is None]
@@ -94,12 +159,25 @@ def ai_move():
                     return jsonify({'row': empty_cells[0][0], 'col': empty_cells[0][1], 'number': number})
 
     # If no strategic move is found, choose any available move
-    for row in range(3):
-        for col in range(3):
+    for row in range(GRID_HEIGHT):
+        for col in range(GRID_WIDTH):
             if grid[row][col] is None:
-                return jsonify({'row': row, 'col': col, 'number': available_numbers[0]})
-
+                for number in available_numbers:
+                    if number != 0:
+                        return jsonify({'row': row, 'col': col, 'number': number})
     return jsonify({'row': 0, 'col': 0, 'number': available_numbers[0]})
+
+# Check if placing an opponent number in the empty cell will result in a win for the opponent
+def can_opponent_win(grid, line, opponent_number):
+    cells = [grid[row][col] for row, col in line]
+    empty_cells = [(row, col) for row, col in line if grid[row][col] is None]
+    non_empty_cells = [cell for cell in cells if cell is not None]
+
+    # Simulate opponent move by adding their number to the sum of the non-empty cells
+    if len(empty_cells) == 1:
+        current_sum = sum(non_empty_cells)
+        return (current_sum + opponent_number) == 15
+    return False
 
 def get_all_lines():
     return [

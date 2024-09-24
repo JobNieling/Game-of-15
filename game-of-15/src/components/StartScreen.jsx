@@ -52,6 +52,36 @@ export default function StartScreen({ onStartGame, onPlayWithAI }) {
       >
         Play with AI
       </button>
+
+      <div className='instructions-container'>
+        <div className='instructions'>
+          <h2>Instructions</h2>
+          <p>The game is played on a 3x3 grid</p>
+          <p>
+            The player who makes the sum of the numbers in a row, column, or
+            diagonal 15 wins the game.
+          </p>
+          <p>In this version there is also a special 0.</p>
+          <p>
+            The 0 can be used in 2 ways, as a normal number or you can overwrite
+            a number once!
+          </p>
+          <p className='bold'>Used is Used!</p>
+        </div>
+
+        <div className='game-modes'>
+          <h2 className='bold'>The game can be played in two modes:</h2>
+          <ul>
+            <li>Player vs Player</li>
+            <p>You can play against another player.</p>
+            <li>Player vs AI</li>
+            <p>You can play against an AI player.</p>
+            <p>
+              This AI is made in only winning mode, so don't be scared to lose!
+            </p>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

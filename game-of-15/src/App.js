@@ -21,7 +21,7 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
   };
 
   const handleAIPlay = (choice) => {
-    setPlayerChoice(choice);
+    setPlayerChoice(!choice);
     navigate("/AIPlaying"); // Use navigate to redirect to the game screen
     console.log(
       "Redirecting to /AIPlaying the user that begins is: ",
@@ -31,7 +31,7 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
 
   const handleEndGame = (result) => {
     setWinner(result);
-    navigate("/end"); // Use navigate to redirect to the end screen
+    // navigate("/end"); // Use navigate to redirect to the end screen
   };
 
   const handleRestart = () => {
@@ -45,6 +45,15 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
       <Routes>
         <Route
           path='/'
+          element={
+            <StartScreen
+              onStartGame={handleStartGame}
+              onPlayWithAI={handleAIPlay}
+            />
+          }
+        />
+        <Route
+          path='/start'
           element={
             <StartScreen
               onStartGame={handleStartGame}

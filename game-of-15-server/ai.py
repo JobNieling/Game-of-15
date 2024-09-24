@@ -5,18 +5,15 @@ GRID_HEIGHT = 3
 
 class GameOf15:
     def __init__(self):
-        # Initialize grid with None to represent empty cells
         self.grid = [[None] * GRID_WIDTH for _ in range(GRID_HEIGHT)]
 
     def is_winner(self, grid, player_numbers):
-        # Check rows, columns, and diagonals for winning condition
         lines = (
             [grid[i] for i in range(GRID_HEIGHT)] +  # rows
             [[grid[i][j] for i in range(GRID_HEIGHT)] for j in range(GRID_WIDTH)] +  # columns
             [[grid[i][i] for i in range(GRID_WIDTH)], [grid[i][GRID_WIDTH - 1 - i] for i in range(GRID_WIDTH)]]  # diagonals
         )
         for line in lines:
-            # Filter out None values and check if the sum of the line is 15 and all elements are in player_numbers
             line_sum = sum(num for num in line if num is not None)
             if line_sum == 15 and all(num in player_numbers for num in line if num is not None):
                 return True
@@ -40,24 +37,24 @@ class GameOf15:
             best_score = -math.inf
             for i in range(GRID_HEIGHT):
                 for j in range(GRID_WIDTH):
-                    if grid[i][j] is None:  # Check for empty cell
+                    if grid[i][j] is None:
                         for num in available_numbers:
                             grid[i][j] = num
                             new_available_numbers = [n for n in available_numbers if n != num]
                             score = self.minimax(grid, new_available_numbers, player_numbers, opponent_numbers, False)
-                            grid[i][j] = None  # Reset cell after simulation
+                            grid[i][j] = None
                             best_score = max(score, best_score)
             return best_score
         else:
             best_score = math.inf
             for i in range(GRID_HEIGHT):
                 for j in range(GRID_WIDTH):
-                    if grid[i][j] is None:  # Check for empty cell
+                    if grid[i][j] is None:
                         for num in available_numbers:
                             grid[i][j] = num
                             new_available_numbers = [n for n in available_numbers if n != num]
                             score = self.minimax(grid, new_available_numbers, opponent_numbers, player_numbers, True)
-                            grid[i][j] = None  # Reset cell after simulation
+                            grid[i][j] = None
                             best_score = min(score, best_score)
             return best_score
 
@@ -72,10 +69,10 @@ class GameOf15:
             if num in available_numbers:
                 for i in range(GRID_HEIGHT):
                     for j in range(GRID_WIDTH):
-                        if grid[i][j] is None:  # Check for empty cell
+                        if grid[i][j] is None:
                             grid[i][j] = num
                             score = self.minimax(grid, [n for n in available_numbers if n != num], player_numbers, opponent_numbers, False)
-                            grid[i][j] = None  # Reset cell after simulation
+                            grid[i][j] = None
                             if score > best_score:
                                 best_score = score
                                 best_move = (i, j, num)

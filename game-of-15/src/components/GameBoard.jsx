@@ -72,7 +72,7 @@ export default function GameBoard({ playerChoice, onGameEnd }) {
       }
 
       await updateScoreboard(result);
-      onGameEnd(result); // Notify parent component to navigate
+      onGameEnd(result);
     } else {
       setCurrentPlayer(currentPlayer === "odd" ? "even" : "odd");
       setAvailableNumbers((prevNumbers) =>
