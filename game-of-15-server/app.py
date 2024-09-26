@@ -2,10 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 import os
-import concurrent.futures
-import time
-# from ai import GameOf15
-import math
 
 GRID_WIDTH = 3
 GRID_HEIGHT = 3

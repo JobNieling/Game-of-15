@@ -82,5 +82,55 @@
             }
         ],
         "winner": "player_win_odd"
+    },
+    {
+        "grid": [
+            [
+                0,
+                6,
+                3
+            ],
+            [
+                2,
+                4,
+                null
+            ],
+            [
+                5,
+                null,
+                9
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 0
+            },
+            {
+                "step": 2,
+                "number": 3
+            },
+            {
+                "step": 3,
+                "number": 2
+            },
+            {
+                "step": 4,
+                "number": 5
+            },
+            {
+                "step": 5,
+                "number": 4
+            },
+            {
+                "step": 6,
+                "number": 9
+            },
+            {
+                "step": 7,
+                "number": 6
+            }
+        ],
+        "winner": "player_win_odd"
     }
 ]
