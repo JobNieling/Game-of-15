@@ -125,25 +125,27 @@ def main():
         player_numbers = ODD_NUMBERS.copy()
         ai_numbers = EVEN_NUMBERS.copy()
         print("You chose Odd. AI is Even.")
+        turn = 'ai'  # AI starts
     elif choice == 'e':
         player_numbers = EVEN_NUMBERS.copy()
         ai_numbers = ODD_NUMBERS.copy()
         print("You chose Even. AI is Odd.")
+        turn = 'ai'  # AI starts
     elif choice == 's':
         player_numbers = random.choice([ODD_NUMBERS.copy(), EVEN_NUMBERS.copy()])
         ai_numbers = EVEN_NUMBERS.copy() if player_numbers == ODD_NUMBERS else ODD_NUMBERS.copy()
         print(f"You will play first as {'Odd' if player_numbers == ODD_NUMBERS else 'Even'}. AI is {'Even' if player_numbers == ODD_NUMBERS else 'Odd'}.")
+        turn = 'player'  # Player starts
     else:
         print("Invalid choice. Please restart the game.")
         return
 
-    # AI makes its initial move
-    print("AI is making its move...")
-    ai_move(board, ai_numbers, player_numbers)
-    print("AI has made its move.")
-    print_board(board)
-
-    turn = 'player' if choice != 's' else 'player' if choice in ['o', 'e'] else 'ai'
+    if turn == 'ai':
+        # AI makes its initial move if AI starts
+        print("AI is making its move...")
+        ai_move(board, ai_numbers, player_numbers)
+        print("AI has made its move.")
+        print_board(board)
 
     while True:
         if turn == 'player':
