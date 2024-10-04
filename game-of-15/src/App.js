@@ -10,34 +10,45 @@ import GameBoard from "./components/GameBoard";
 import GameBoardAI from "./components/GameBoardAI";
 import EndScreen from "./components/EndScreen";
 import "./App.css";
+import GameBoardStart from "./components/GameBoardStart";
 
 const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
   const navigate = useNavigate();
 
+  // Player starts the game
   const handleStartGame = (choice) => {
-    setPlayerChoice(choice);
+    setPlayerChoice({ choice, playerStarts: true });
     navigate("/playing");
-    console.log("Redirecting to /playing the user that begins is: ", choice);
+    console.log("Redirecting to /playing. Player starts, choice:", choice);
   };
 
+  // AI vs Player - player starts
   const handleAIPlay = (choice) => {
-    setPlayerChoice(choice);
+    setPlayerChoice({ choice, playerStarts: true });
     navigate("/AIPlaying");
     console.log(
-      "Redirecting to /AIPlaying the user that begins is: ",
+      "Redirecting to /AIPlaying. Player starts, choice:",
       playerChoice
+    );
+  };
+
+  const handleAIStartGame = (choice) => {
+    setPlayerChoice(choice);
+    navigate("/StartAIPlaying"); // Navigates to the /StartAIPlaying route
+    console.log(
+      "Redirecting to /StartAIPlaying. AI starts, player is: ",
+      choice
     );
   };
 
   const handleEndGame = (result) => {
     setWinner(result);
-    // navigate("/end"); // Use navigate to redirect to the end screen
   };
 
   const handleRestart = () => {
     setPlayerChoice(null);
     setWinner(null);
-    navigate("/"); // Use navigate to redirect to the start screen
+    navigate("/"); // Redirect to the start screen
   };
 
   return (
@@ -49,6 +60,7 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
             <StartScreen
               onStartGame={handleStartGame}
               onPlayWithAI={handleAIPlay}
+              onAIStartGame={handleAIStartGame} // Add new button to start with AI first
             />
           }
         />
@@ -58,6 +70,7 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
             <StartScreen
               onStartGame={handleStartGame}
               onPlayWithAI={handleAIPlay}
+              onAIStartGame={handleAIStartGame} // Button to start with AI first
             />
           }
         />
@@ -72,6 +85,16 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
           element={
             <GameBoardAI
               playerChoice={playerChoice}
+              onGameEnd={handleEndGame}
+            />
+          }
+        />
+        <Route
+          path='/StartAIPlaying'
+          element={
+            <GameBoardStart
+              playerChoice={playerChoice}
+              playerStarts={false} // AI starts the game
               onGameEnd={handleEndGame}
             />
           }

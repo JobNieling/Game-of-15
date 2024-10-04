@@ -4,20 +4,27 @@ import "./GameBoard.css";
 import Numbers from "./Numbers";
 import GameStatus from "./GameStatus";
 
-export default function GameBoardAI({ playerChoice, onGameEnd }) {
+const randomChoice = (choices) => {
+  const randomIndex = Math.floor(Math.random() * choices.length);
+  return choices[randomIndex];
+};
+
+export default function GameBoardAI({ onGameEnd }) {
   const [grid, setGrid] = useState(
     Array(3)
       .fill(null)
       .map(() => Array(3).fill(null))
   );
+  const [playerChoice, setPlayerChoice] = useState(
+    randomChoice(["odd", "even"])
+  );
   const [placementOrder, setPlacementOrder] = useState([]);
-  // const [selectedCell, setSelectedCell] = useState({ row: null, col: null });
   const [availableNumbers, setAvailableNumbers] = useState([
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
   ]);
   const [aiNumbers, setAiNumbers] = useState([]);
   const [selectedNumber, setSelectedNumber] = useState(null);
-  const [currentPlayer, setCurrentPlayer] = useState(playerChoice);
+  const [currentPlayer, setCurrentPlayer] = useState();
   const [winner, setWinner] = useState(null);
   const [error, setError] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -55,7 +62,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
         .fill(null)
         .map(() => Array(3).fill(null))
     );
-    setCurrentPlayer(aiPlayer);
+    setCurrentPlayer(playerChoice);
     setAvailableNumbers([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     setWinner(null);
     setPlacementOrder([]);
