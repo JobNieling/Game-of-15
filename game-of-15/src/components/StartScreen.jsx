@@ -10,7 +10,7 @@ export default function StartScreen({
 
   // Toggle player choice or reset if the same one is clicked
   const handleChoiceClick = (choice) => {
-    setPlayerChoice(choice);
+    setPlayerChoice((prevChoice) => (prevChoice === choice ? "" : choice));
   };
 
   const handleStartClick = () => {
