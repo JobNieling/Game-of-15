@@ -28,7 +28,7 @@ def save_grid_with_placement(grid, placement_order, result):
     }
 
     ensure_directory_exists(GRID_STORAGE_DIR)
-
+ 
     file_path = file_mapping.get(result)
 
     # Load existing grids
@@ -51,6 +51,10 @@ def save_grid_with_placement(grid, placement_order, result):
     }
 
     grids.append(grid_data)
+
+    with open(file_path, 'w') as f:
+        json.dump(grids, f, indent=4)
+
 
     with open(file_path, 'w') as f:
         json.dump(grids, f, indent=4)
@@ -119,10 +123,8 @@ def ai_move():
 
     # Check if opponent can win and block it
     for line in get_all_lines():
-        for opponent_number in opponent_available_numbers:  # Ensure opponent_number is treated as an integer
-            if isinstance(opponent_number, list):  # Ensure opponent_number is a single integer
-                continue
-            if can_opponent_win(grid, line, opponent_number):
+        for number in opponent_available_numbers:
+            if can_opponent_win(grid, line, number):
                 # Find an empty cell in that line to block the opponent
                 for row, col in line:
                     if grid[row][col] is None:
@@ -137,7 +139,7 @@ def ai_move():
 
         if len(empty_cells) == 1:
             required_number = 15 - current_sum
-            if required_number in available_numbers and required_number != 0:  # Avoid using number 0
+            if required_number in available_numbers:
                 return jsonify({'row': empty_cells[0][0], 'col': empty_cells[0][1], 'number': required_number})
 
     # If no immediate win or block, choose best setup move
@@ -149,7 +151,7 @@ def ai_move():
 
         if len(empty_cells) > 1:
             for number in available_numbers:
-                if (current_sum + number) <= 15 and number != 0:  # Avoid using number 0
+                if (current_sum + number) <= 15:
                     return jsonify({'row': empty_cells[0][0], 'col': empty_cells[0][1], 'number': number})
 
     # If no strategic move is found, choose any available move
@@ -157,9 +159,8 @@ def ai_move():
         for col in range(GRID_WIDTH):
             if grid[row][col] is None:
                 for number in available_numbers:
-                    if number != 0:  # Avoid using number 0
+                    if number != 0:
                         return jsonify({'row': row, 'col': col, 'number': number})
-
     return jsonify({'row': 0, 'col': 0, 'number': available_numbers[0]})
 
 # Check if placing an opponent number in the empty cell will result in a win for the opponent
@@ -171,7 +172,7 @@ def can_opponent_win(grid, line, opponent_number):
     # Simulate opponent move by adding their number to the sum of the non-empty cells
     if len(empty_cells) == 1:
         current_sum = sum(non_empty_cells)
-        return (current_sum + opponent_number) == 15  # Ensure opponent_number is an integer
+        return (current_sum + opponent_number) == 15
     return False
 
 def get_all_lines():

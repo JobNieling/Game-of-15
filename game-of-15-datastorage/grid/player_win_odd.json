@@ -404,51 +404,5 @@
             }
         ],
         "winner": "player_win_odd"
-    },
-    {
-        "grid": [
-            [
-                1,
-                2,
-                5
-            ],
-            [
-                4,
-                6,
-                null
-            ],
-            [
-                null,
-                null,
-                3
-            ]
-        ],
-        "placement_order": [
-            {
-                "step": 1,
-                "number": 1
-            },
-            {
-                "step": 2,
-                "number": 2
-            },
-            {
-                "step": 3,
-                "number": 3
-            },
-            {
-                "step": 4,
-                "number": 4
-            },
-            {
-                "step": 5,
-                "number": 5
-            },
-            {
-                "step": 6,
-                "number": 6
-            }
-        ],
-        "winner": "player_win_odd"
     }
 ]

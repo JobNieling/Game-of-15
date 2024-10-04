@@ -174,12 +174,9 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     if (isProcessing || winner) return;
 
     const cellValue = grid[row][col];
-
-    // Allow placement of '0' regardless of the current cell value
     if (
-      selectedNumber === 0 ||
-      cellValue === null ||
-      cellValue === selectedNumber
+      selectedNumber !== null &&
+      (cellValue === null || cellValue === selectedNumber)
     ) {
       const newGrid = grid.map((r) => r.slice());
       newGrid[row][col] = selectedNumber;
