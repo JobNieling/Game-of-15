@@ -12,13 +12,7 @@ export default function StartScreen({ onStartGame, onPlayWithAI }) {
 
   const handleAIPlay = () => {
     if (playerChoice) {
-      onPlayWithAI(playerChoice, true); // true indicates AI starts
-    }
-  };
-
-  const handleAIPlayStart = () => {
-    if (playerChoice) {
-      onPlayWithAI(playerChoice, false); // false indicates player starts
+      onPlayWithAI(playerChoice, true);
     }
   };
 
@@ -57,14 +51,6 @@ export default function StartScreen({ onStartGame, onPlayWithAI }) {
         style={{ marginTop: "10px" }}
       >
         Play with AI
-      </button>
-      <button
-        className='start-button'
-        onClick={handleAIPlayStart}
-        disabled={playerChoice}
-        style={{ marginTop: "10px" }}
-      >
-        Start Play AI (Player Starts)
       </button>
 
       <div className='instructions-container'>
