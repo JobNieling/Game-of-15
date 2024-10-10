@@ -16,6 +16,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
   ]);
   const [aiNumbers, setAiNumbers] = useState([]);
+  const [playerNumbers, setPlayerNumbers] = useState([]);
   const [selectedNumber, setSelectedNumber] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState(playerChoice);
   const [winner, setWinner] = useState(null);
@@ -23,9 +24,7 @@ export default function GameBoardAI({ playerChoice, onGameEnd }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const aiPlayer = playerChoice === "odd" ? "even" : "odd";
   const navigate = useNavigate();
-  const [playerNumbers, setPlayerNumbers] = useState([
-    playerChoice === "odd" ? [1, 3, 5, 7, 9] : [0, 2, 4, 6, 8],
-  ]);
+
   const getAvailableNumbers = (playerType, usedNumbers) => {
     const allNumbers = playerType === "odd" ? [1, 3, 5, 7, 9] : [0, 2, 4, 6, 8];
     return allNumbers.filter((number) => !usedNumbers.includes(number));
