@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import "./StartScreen.css";
+import { set } from "mongoose";
 
-export default function StartScreen({ onStartGame, onPlayWithAI }) {
+export default function StartScreen({
+  onStartGame,
+  onPlayWithAI,
+  onPlayerStart,
+}) {
   const [playerChoice, setPlayerChoice] = useState("");
 
   const handleStartClick = () => {
@@ -14,6 +19,17 @@ export default function StartScreen({ onStartGame, onPlayWithAI }) {
     if (playerChoice) {
       onPlayWithAI(playerChoice, true);
     }
+  };
+
+  const randomChoice = () => {
+    const choices = ["odd", "even"];
+    const randomIndex = Math.floor(Math.random() * choices.length);
+    return choices[randomIndex];
+  };
+
+  const handlePlayerStart = () => {
+    setPlayerChoice(randomChoice());
+    onPlayerStart(playerChoice);
   };
 
   return (
@@ -51,6 +67,13 @@ export default function StartScreen({ onStartGame, onPlayWithAI }) {
         style={{ marginTop: "10px" }}
       >
         Play with AI
+      </button>
+      <button
+        className='start-button'
+        onClick={handlePlayerStart}
+        style={{ marginTop: "10px" }}
+      >
+        Player Start
       </button>
 
       <div className='instructions-container'>

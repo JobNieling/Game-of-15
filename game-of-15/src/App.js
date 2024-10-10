@@ -29,8 +29,23 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
     );
   };
 
+  const handlePlayerStart = () => {
+    // created a random for odd or even in AI play
+    const random = Math.floor(Math.random() * 2);
+    console.log("Random number is: ", random);
+    const choice = random === 0 ? "odd" : "even";
+    console.log("Random choice is: ", choice);
+    setPlayerChoice(choice);
+    navigate("/AIPlayerStart");
+    console.log(
+      "Redirecting to /AIPlayerStart the user that begins is: ",
+      playerChoice
+    );
+  };
+
   const handleEndGame = (result) => {
     setWinner(result);
+    // This line is commented out so I can see the grid that was winning, if you want to go to the end screen uncomment this line
     // navigate("/end"); // Use navigate to redirect to the end screen
   };
 
@@ -49,6 +64,7 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
             <StartScreen
               onStartGame={handleStartGame}
               onPlayWithAI={handleAIPlay}
+              onPlayerStart={handlePlayerStart}
             />
           }
         />
@@ -58,6 +74,7 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
             <StartScreen
               onStartGame={handleStartGame}
               onPlayWithAI={handleAIPlay}
+              onPlayerStart={handlePlayerStart}
             />
           }
         />
@@ -69,6 +86,15 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
         />
         <Route
           path='/AIPlaying'
+          element={
+            <GameBoardAI
+              playerChoice={playerChoice}
+              onGameEnd={handleEndGame}
+            />
+          }
+        />
+        <Route
+          path='/AIPlayerStart'
           element={
             <GameBoardAI
               playerChoice={playerChoice}
