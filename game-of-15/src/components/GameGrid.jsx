@@ -1,13 +1,7 @@
 import React from "react";
 import "./GameGrid.css";
 
-export default function GameGrid({
-  grid,
-  onCellClick,
-  onCellDrop,
-  onCellDragOver,
-  selectedCell,
-}) {
+export default function GameGrid({ grid, onCellClick, selectedCell }) {
   return (
     <table className='GameGrid'>
       <tbody>
@@ -17,13 +11,9 @@ export default function GameGrid({
               <td
                 key={j}
                 className={`cell ${
-                  selectedCell.row === i && selectedCell.col === j
-                    ? "selected"
-                    : ""
+                  selectedCell === i && selectedCell === j ? "selected" : ""
                 } ${cell !== null ? "occupied" : ""}`}
                 onClick={() => onCellClick(i, j)}
-                onDragOver={onCellDragOver}
-                onDrop={(e) => onCellDrop(i, j, e)}
               >
                 {cell !== null ? (
                   <span className='cell-number'>{cell}</span>

@@ -10,16 +10,19 @@ import GameBoard from "./components/GameBoard";
 import GameBoardAI from "./components/GameBoardAI";
 import EndScreen from "./components/EndScreen";
 import "./App.css";
+import GameBoardAI2 from "./components/GameBoardPlayerStart";
 
 const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
   const navigate = useNavigate();
 
+  // Start game for human-vs-human gameplay
   const handleStartGame = (choice) => {
     setPlayerChoice(choice);
     navigate("/playing");
     console.log("Redirecting to /playing the user that begins is: ", choice);
   };
 
+  // Start game for human-vs-AI where AI starts
   const handleAIPlay = (choice) => {
     setPlayerChoice(choice);
     navigate("/AIPlaying");
@@ -29,8 +32,9 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
     );
   };
 
+  // Start game for human-vs-AI where the player starts
   const handlePlayerStart = () => {
-    // created a random for odd or even in AI play
+    // Randomly determine if the AI will play as odd or even
     const random = Math.floor(Math.random() * 2);
     console.log("Random number is: ", random);
     const choice = random === 0 ? "odd" : "even";
@@ -43,16 +47,18 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
     );
   };
 
+  // Set winner at the end of the game
   const handleEndGame = (result) => {
     setWinner(result);
-    // This line is commented out so I can see the grid that was winning, if you want to go to the end screen uncomment this line
-    // navigate("/end"); // Use navigate to redirect to the end screen
+    // Commented out to allow viewing of the grid after winning. Uncomment to navigate to end screen.
+    // navigate("/end");
   };
 
+  // Restart the game, resetting all states
   const handleRestart = () => {
     setPlayerChoice(null);
     setWinner(null);
-    navigate("/"); // Use navigate to redirect to the start screen
+    navigate("/"); // Redirect to the start screen
   };
 
   return (
@@ -90,15 +96,17 @@ const Navigation = ({ playerChoice, setPlayerChoice, winner, setWinner }) => {
             <GameBoardAI
               playerChoice={playerChoice}
               onGameEnd={handleEndGame}
+              playerStart={false} // AI starts the game
             />
           }
         />
         <Route
           path='/AIPlayerStart'
           element={
-            <GameBoardAI
+            <GameBoardAI2
               playerChoice={playerChoice}
               onGameEnd={handleEndGame}
+              playerStart={true} // Player starts the game
             />
           }
         />

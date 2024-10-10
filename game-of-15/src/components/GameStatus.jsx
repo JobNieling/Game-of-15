@@ -1,4 +1,3 @@
-// components/GameStatus.js
 import React from "react";
 import "./GameStatus.css";
 

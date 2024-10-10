@@ -8,6 +8,7 @@ export default function StartScreen({
   onPlayerStart,
 }) {
   const [playerChoice, setPlayerChoice] = useState("");
+  const [playerStart, setPlayerStart] = useState(false);
 
   const handleStartClick = () => {
     if (playerChoice) {
@@ -17,7 +18,7 @@ export default function StartScreen({
 
   const handleAIPlay = () => {
     if (playerChoice) {
-      onPlayWithAI(playerChoice, true);
+      onPlayWithAI(playerChoice, true, false);
     }
   };
 
@@ -28,8 +29,10 @@ export default function StartScreen({
   };
 
   const handlePlayerStart = () => {
-    setPlayerChoice(randomChoice());
-    onPlayerStart(playerChoice);
+    const choice = randomChoice();
+    setPlayerChoice(choice);
+    onPlayerStart(choice, true);
+    // onPlayWithAI(choice, true, true);
   };
 
   return (
