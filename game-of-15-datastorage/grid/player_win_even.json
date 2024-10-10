@@ -86,47 +86,5 @@
             }
         ],
         "winner": "player_win_even"
-    },
-    {
-        "grid": [
-            [
-                1,
-                4,
-                2
-            ],
-            [
-                3,
-                5,
-                null
-            ],
-            [
-                null,
-                null,
-                null
-            ]
-        ],
-        "placement_order": [
-            {
-                "step": 1,
-                "number": 1
-            },
-            {
-                "step": 2,
-                "number": 2
-            },
-            {
-                "step": 3,
-                "number": 3
-            },
-            {
-                "step": 4,
-                "number": 4
-            },
-            {
-                "step": 5,
-                "number": 5
-            }
-        ],
-        "winner": "player_win_even"
     }
 ]
