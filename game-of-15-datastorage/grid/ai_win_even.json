@@ -332,5 +332,43 @@
             }
         ],
         "winner": "ai_win_even"
+    },
+    {
+        "grid": [
+            [
+                0,
+                2,
+                null
+            ],
+            [
+                null,
+                null,
+                5
+            ],
+            [
+                7,
+                null,
+                null
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 0
+            },
+            {
+                "step": 2,
+                "number": 5
+            },
+            {
+                "step": 3,
+                "number": 2
+            },
+            {
+                "step": 4,
+                "number": 7
+            }
+        ],
+        "winner": "ai_win_even"
     }
 ]

@@ -1,0 +1,56 @@
+[
+    {
+        "grid": [
+            [
+                0,
+                2,
+                null
+            ],
+            [
+                4,
+                6,
+                7
+            ],
+            [
+                5,
+                9,
+                3
+            ]
+        ],
+        "placement_order": [
+            {
+                "step": 1,
+                "number": 0
+            },
+            {
+                "step": 2,
+                "number": 7
+            },
+            {
+                "step": 3,
+                "number": 2
+            },
+            {
+                "step": 4,
+                "number": 5
+            },
+            {
+                "step": 5,
+                "number": 4
+            },
+            {
+                "step": 6,
+                "number": 3
+            },
+            {
+                "step": 7,
+                "number": 6
+            },
+            {
+                "step": 8,
+                "number": 9
+            }
+        ],
+        "winner": "tie"
+    }
+]
